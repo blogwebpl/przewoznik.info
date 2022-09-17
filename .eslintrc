@@ -12,5 +12,11 @@
 	"plugins": [
 		"@typescript-eslint",
 		"prettier"
-	]
+	],
+	"rules": {
+		"import/prefer-default-export": "off",
+		"react/require-default-props": "off",
+		"react/jsx-no-useless-fragment": "off",
+		"no-console": "off"
+	}
 }
