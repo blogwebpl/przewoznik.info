@@ -13,6 +13,7 @@ import { Signin } from '../Signin';
 import { AppBar } from '../UI/AppBar';
 import { Drawer } from '../UI/Drawer';
 import { Main } from '../UI/Main';
+import { MapContainer } from '../Map';
 
 export function App() {
 	const dispatch = useDispatch();
@@ -50,6 +51,7 @@ export function App() {
 						<Route path="" element={<Blank />} />
 						<Route path="profile" element={<Profile />} />
 						<Route path="change-password" element={<ChangePassword />} />
+						<Route path="map" element={<MapContainer />} />
 					</Route>
 				</Routes>
 			</Main>

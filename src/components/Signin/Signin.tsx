@@ -96,7 +96,7 @@ export function Signin() {
 			if (state) {
 				navigate(state.from);
 			} else {
-				navigate('/');
+				navigate('/map');
 			}
 		} else {
 			localStorage.removeItem('token');
