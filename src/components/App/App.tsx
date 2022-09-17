@@ -14,6 +14,7 @@ import { AppBar } from '../UI/AppBar';
 import { Drawer } from '../UI/Drawer';
 import { Main } from '../UI/Main';
 import { MapContainer } from '../Map';
+import { SideMenu } from '../Sidemenu/Sidemenu';
 
 export function App() {
 	const dispatch = useDispatch();
@@ -57,6 +58,7 @@ export function App() {
 			</Main>
 			<AppBar title="przewoznik.info" />
 			<Drawer closeOnClick />
+			<SideMenu />
 		</>
 	);
 }

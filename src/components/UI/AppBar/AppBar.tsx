@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { RootState } from '../../../app/store';
-import { setIsMenuOpen } from '../../../features/uiSlice';
+import { setIsMenuOpen, setIsSideMenuOpen } from '../../../features/uiSlice';
 import { IconButton } from '../IconButton/IconButton';
+import { CarIcon } from '../Icons/CarIcon/CarIcon';
 import { CloseIcon } from '../Icons/CloseIcon/CloseIcon';
 import { LockIcon } from '../Icons/LockIcon/LockIcon';
 import { MenuIcon } from '../Icons/MenuIcon/MenuIcon';
@@ -46,7 +47,7 @@ export function AppBar({ title }: AppBarProps) {
 	const dispatch = useDispatch();
 	const env = process.env.NODE_ENV;
 	const { isSignin } = useSelector((state: RootState) => state.user);
-	const { isMenuOpen } = useSelector((state: RootState) => state.ui);
+	const { isMenuOpen, isSideMenuOpen } = useSelector((state: RootState) => state.ui);
 	const handleMenuClick = () => {
 		if (isSignin) {
 			dispatch(setIsMenuOpen(!isMenuOpen));
@@ -68,6 +69,15 @@ export function AppBar({ title }: AppBarProps) {
 				</Typography>
 			</StyledTitleContainer>
 			<StyledIconContainer>
+				{isSignin && (
+					<IconButton
+						onClick={() => {
+							dispatch(setIsSideMenuOpen(!isSideMenuOpen));
+						}}
+					>
+						{isSideMenuOpen ? <CloseIcon /> : <CarIcon />}
+					</IconButton>
+				)}
 				<IconButton
 					edge="end"
 					onClick={() => {
