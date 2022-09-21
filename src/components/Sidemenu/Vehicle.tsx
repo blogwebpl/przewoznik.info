@@ -1,7 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
+import { useDispatch } from 'react-redux';
+import useAxios from '../../hooks/useAxios';
 import { Checkbox } from '../UI/Checkbox';
+import { setVehicleShow } from '../../features/userSlice';
 
 const StyledVehicle = styled.div`
 	padding: 4px 14px;
@@ -30,10 +33,23 @@ const StyledDate = styled.span`
 `;
 
 export function Vehicle({ data }: { data: any }) {
+	const dispatch = useDispatch();
+	const axiosPost = useAxios('post');
+
 	return (
 		<StyledVehicle>
 			<StyledCheckBoxContainer>
-				<Checkbox label="" checked={data.show} setChecked={() => {}} />
+				<Checkbox
+					label=""
+					checked={data.show}
+					setChecked={() => {
+						axiosPost({
+							url: '/user/imei',
+							params: { imei: data.imei, live: data.live, show: !data.show, info: data.info },
+						});
+						dispatch(setVehicleShow({ imei: data.imei, show: !data.show }));
+					}}
+				/>
 			</StyledCheckBoxContainer>
 			<StyledNameContainer>
 				<StyledName>{data.name}</StyledName>

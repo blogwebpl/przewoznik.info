@@ -36,9 +36,33 @@ export const userSlice = createSlice({
 		setVehicles: (state, action) => {
 			state.vehicles = action.payload;
 		},
+		setVehicleLive: (state, action) => {
+			state.vehicles = state.vehicles.map((vehicle) => {
+				if (vehicle.imei === action.payload.imei) {
+					vehicle.live = action.payload.live;
+				}
+				return vehicle;
+			});
+		},
+		setVehicleShow: (state, action) => {
+			state.vehicles = state.vehicles.map((vehicle) => {
+				if (vehicle.imei === action.payload.imei) {
+					vehicle.show = action.payload.show;
+				}
+				return vehicle;
+			});
+		},
 	},
 });
 
-export const { setIsSignin, setEmail, setRole, setRoles, setVehicles } = userSlice.actions;
+export const {
+	setIsSignin,
+	setEmail,
+	setRole,
+	setRoles,
+	setVehicles,
+	setVehicleLive,
+	setVehicleShow,
+} = userSlice.actions;
 
 export default userSlice.reducer;
