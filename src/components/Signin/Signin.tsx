@@ -8,7 +8,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import logo from '../../assets/logo.svg';
 import axios from '../../axios/axios';
-import { setEmail, setRole, setRoles, setIsSignin } from '../../features/userSlice';
+import { setEmail, setRole, setRoles, setIsSignin, setVehicles } from '../../features/userSlice';
 import isEmail from '../../functions/isEmail';
 import { Alert } from '../UI/Alert/Alert';
 import { Button } from '../UI/Button/Button';
@@ -76,7 +76,7 @@ export function Signin() {
 	};
 
 	interface PostSigninResponse
-		extends AxiosResponse<{ token: string; role: string; roles: string[] }> {}
+		extends AxiosResponse<{ token: string; role: string; roles: string[]; vehicles: any[] }> {}
 
 	const axiosPostSignin = async () => {
 		if (!axios) return;
@@ -84,7 +84,7 @@ export function Signin() {
 			email: formEmail,
 			password: formPassword,
 		});
-		const { token, role, roles } = response.data;
+		const { token, role, roles, vehicles } = response.data;
 
 		if (isValidToken(token)) {
 			localStorage.setItem('token', token);
@@ -92,6 +92,7 @@ export function Signin() {
 			dispatch(setRoles(roles));
 			dispatch(setRole(role));
 			dispatch(setEmail(formEmail));
+			dispatch(setVehicles(vehicles));
 			const { state } = location;
 			if (state) {
 				navigate(state.from);

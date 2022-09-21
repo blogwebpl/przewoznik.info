@@ -5,7 +5,7 @@ import { Route, Routes } from 'react-router-dom';
 import { ProtectedRoutes } from '../../ProtectedRoutes';
 import { RootState } from '../../app/store';
 import axios from '../../axios/axios';
-import { setEmail, setIsSignin, setRole, setRoles } from '../../features/userSlice';
+import { setEmail, setIsSignin, setRole, setRoles, setVehicles } from '../../features/userSlice';
 import { Blank } from '../Blank';
 import { ChangePassword } from '../ChangePassword';
 import { Profile } from '../Profile';
@@ -35,6 +35,7 @@ export function App() {
 					dispatch(setEmail(response.data.email));
 					dispatch(setRole(response.data.role));
 					dispatch(setRoles(response.data.roles));
+					dispatch(setVehicles(response.data.vehicles));
 				})
 				.catch(() => {
 					dispatch(setIsSignin(false));

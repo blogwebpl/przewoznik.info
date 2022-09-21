@@ -5,7 +5,8 @@ interface UserState {
 	isSignin: boolean;
 	email: string;
 	role: any;
-	roles: any;
+	roles: any[];
+	vehicles: any[];
 }
 
 const initialState: UserState = {
@@ -13,6 +14,7 @@ const initialState: UserState = {
 	email: '',
 	role: null,
 	roles: [],
+	vehicles: [],
 };
 
 export const userSlice = createSlice({
@@ -31,9 +33,12 @@ export const userSlice = createSlice({
 		setRoles: (state, action) => {
 			state.roles = action.payload;
 		},
+		setVehicles: (state, action) => {
+			state.vehicles = action.payload;
+		},
 	},
 });
 
-export const { setIsSignin, setEmail, setRole, setRoles } = userSlice.actions;
+export const { setIsSignin, setEmail, setRole, setRoles, setVehicles } = userSlice.actions;
 
 export default userSlice.reducer;
