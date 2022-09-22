@@ -1,11 +1,13 @@
-import L from 'leaflet';
+import L, { LatLng } from 'leaflet';
 import { RotatedMarker } from 'leaflet-marker-rotation';
+import _ from 'lodash';
 import redCarMoveIcon from '../../assets/redCarMove.svg';
 import redCarStopIcon from '../../assets/redCarStop.svg';
 
 interface MarkerProps {
+	imei: string;
 	lat: number;
-	lon: number;
+	lng: number;
 	speed: number;
 	angle: number;
 }
@@ -36,9 +38,11 @@ export class Map {
 
 	private _routeData: [[number, number]] | [] = [];
 
-	constructor(mapId: string) {
+	private _markers: any[] = [];
+
+	constructor({ mapId, lat, lng }: { mapId: string; lat: number; lng: number }) {
 		try {
-			this._map = L.map(mapId).setView([53.14544, 18.13467], 15);
+			this._map = L.map(mapId).setView([lat, lng], 15);
 			this._map.removeControl(this._map.zoomControl);
 			this._map.attributionControl.setPrefix(
 				'<a href="https://leafletjs.com" title="A JavaScript library for interactive maps"> Leaflet</a>'
@@ -54,13 +58,32 @@ export class Map {
 		}
 	}
 
-	addMarker({ lat, lon, speed, angle }: MarkerProps) {
+	addMarker({ imei, lat, lng, speed, angle }: MarkerProps) {
 		if (!this._map) return;
-		const markerOptions: RotatedMarkerOptions = {
-			icon: speed > 0 ? redCarMove : redCarStop,
-			rotationAngle: angle,
-		};
-		new RotatedMarker([lat, lon], markerOptions).addTo(this._map);
+		const index = _.findIndex(this._markers, { imei });
+		if (index === -1) {
+			const markerOptions: RotatedMarkerOptions = {
+				icon: speed > 0 ? redCarMove : redCarStop,
+				rotationAngle: angle,
+			};
+			const marker = new RotatedMarker([lat, lng], markerOptions);
+			marker.addTo(this._map);
+			console.log(`Dodaję marker: ${imei}`);
+			this._markers.push({ imei, marker });
+			console.log(`Mam w tablicy markerów: ${this._markers.length}`);
+		}
+	}
+
+	removeMarker(imei: string) {
+		if (!this._map) return;
+		const index = _.findIndex(this._markers, { imei });
+		if (index > -1) {
+			console.log(`Usuwam marker: ${imei}`);
+			const { marker } = this._markers[index];
+			this._map.removeLayer(marker);
+			this._markers.splice(index, 1);
+			console.log(`Mam w tablicy markerów: ${this._markers.length}`);
+		}
 	}
 
 	addRoute(data: [[number, number]]) {
@@ -90,6 +113,16 @@ export class Map {
 	setZoom(zoom: number) {
 		if (!this._map) return;
 		this._map.setZoom(zoom);
+	}
+
+	getZoom(): number {
+		if (!this._map) return 1;
+		return this._map.getZoom();
+	}
+
+	getLatLng(): L.LatLng {
+		if (!this._map) return new LatLng(0, 0);
+		return this._map.getCenter();
 	}
 
 	close() {

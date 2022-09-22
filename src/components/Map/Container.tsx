@@ -1,22 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 
-/* eslint-disable react/react-in-jsx-scope */
 import styled from 'styled-components';
-import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
 import { Map } from './Map';
+import { RootState } from '../../app/store';
+import { setMapZoom, setMapCenter } from '../../features/uiSlice';
 
 const StyledMap = styled.div`
 	width: 100%;
 	height: 100%;
 	background: gray;
-`;
-
-const StyledButton = styled.button`
-	position: absolute;
-	z-index: 400;
-	top: 100px;
-	left: 100px;
 `;
 
 const StyledControl = styled.div`
@@ -38,48 +32,75 @@ const StyledSlider = styled.input`
 `;
 
 export function MapContainer() {
+	const dispatch = useDispatch();
 	const [map, setMap] = useState<Map | undefined>();
 	const [sliderValue, setSliderValue] = useState<number>(1);
-	const [sliderMax, setSliderMax] = useState<number>(0);
+	// const [sliderMax, setSliderMax] = useState<number>(0);
 	const [fromDateTime, setFromDateTime] = useState<string>('');
 	const [toDateTime, setToDateTime] = useState<string>('');
-
+	const { mapZoom, mapCenter } = useSelector((state: RootState) => state.ui);
+	const { vehicles } = useSelector((state: RootState) => state.user);
 	useEffect(() => {
-		setMap(new Map('map'));
+		if (!map) {
+			const m = new Map({ mapId: 'map', lat: mapCenter.lat, lng: mapCenter.lng });
+			m.setZoom(mapZoom);
+			setMap(m);
+		}
+
 		return () => {
 			if (map) {
+				const zoom = map.getZoom();
+				const latLng: L.LatLng = map.getLatLng();
+				dispatch(setMapZoom(zoom));
+				dispatch(setMapCenter(latLng));
+
 				map.close();
 				setMap(undefined);
 			}
 		};
-	}, []);
+	}, [map]);
 
-	const test = async () => {
+	useEffect(() => {
 		if (!map) return;
-		const fromDate = new Date(fromDateTime).toISOString();
-		const toDate = new Date(toDateTime).toISOString();
+		vehicles.forEach((vehicle) => {
+			const { imei, show } = vehicle;
+			const lat = vehicle.gps.pos[0];
+			const lng = vehicle.gps.pos[1];
+			const { spd: speed, ang: angle } = vehicle.gps;
 
-		const route = await axios.get(
-			`http://localhost:3001/api/route?imei=352094082752483&fromDateTime=${fromDate}&toDateTime=${toDate}`
-		);
+			if (show) {
+				map.addMarker({ imei, lat, lng, speed, angle });
+			} else {
+				map.removeMarker(imei);
+			}
+		});
+	}, [vehicles, map]);
 
-		const data = route.data.route.map((point: any) => [point.gps.pos[1], point.gps.pos[0]]);
-		console.log(data);
-		map.setZoom(18);
-		map.addMarker({ lat: 53.14544, lon: 18.13467, speed: 20, angle: 0 });
-		map.addRoute(data);
-		setSliderMax(data.length);
-	};
+	// const test = async () => {
+	// 	if (!map) return;
+	// 	const fromDate = new Date(fromDateTime).toISOString();
+	// 	const toDate = new Date(toDateTime).toISOString();
+
+	// 	const route = await axios.get(
+	// 		`http://localhost:3001/api/route?imei=352094082752483&fromDateTime=${fromDate}&toDateTime=${toDate}`
+	// 	);
+
+	// 	const data = route.data.route.map((point: any) => [point.gps.pos[1], point.gps.pos[0]]);
+	// 	console.log(data);
+	// 	map.setZoom(18);
+	// 	map.addMarker({ lat: 53.14544, lon: 18.13467, speed: 20, angle: 0 });
+	// 	map.addRoute(data);
+	// 	setSliderMax(data.length);
+	// };
 
 	return (
 		<>
 			<StyledMap id="map" />
-			<StyledButton onClick={test}>TEST</StyledButton>
 			<StyledControl>
 				<StyledSlider
 					type="range"
 					min={0}
-					max={sliderMax}
+					max={0} // sliderMax
 					value={sliderValue}
 					onChange={(e) => {
 						if (map) map.sliderValue = Number(e.target.value);
@@ -99,7 +120,7 @@ export function MapContainer() {
 				<button
 					type="button"
 					onClick={() => {
-						if (sliderValue === sliderMax) return;
+						// if (sliderValue === sliderMax) return;
 						if (map) map.sliderValue = sliderValue + 1;
 						setSliderValue(sliderValue + 1);
 					}}
