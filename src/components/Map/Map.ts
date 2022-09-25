@@ -1,15 +1,17 @@
 import L, { LatLng } from 'leaflet';
 import { RotatedMarker } from 'leaflet-marker-rotation';
 import _ from 'lodash';
+import moment from 'moment';
 import redCarMoveIcon from '../../assets/redCarMove.svg';
 import redCarStopIcon from '../../assets/redCarStop.svg';
 
 interface MarkerProps {
 	imei: string;
-	lat: number;
-	lng: number;
+	name: string;
 	speed: number;
 	angle: number;
+	latLng: [number, number];
+	dateTime: Date;
 }
 
 interface RotatedMarkerOptions extends L.MarkerOptions {
@@ -29,22 +31,24 @@ const redCarMove = L.icon({
 	iconAnchor: [16, 18],
 });
 
+interface ConstructorProps {
+	mapId: string;
+	latLng: [number, number];
+	zoom: number;
+}
+
 export class Map {
-	private _map;
+	private map;
+	private slider: number = 1;
+	private routePolyline: L.Polyline = L.polyline([]);
+	private routeData: L.LatLng[] = [];
+	private markers: { imei: string; marker: RotatedMarker }[] = [];
 
-	private _sliderValue: number = 1;
-
-	private _routePolyline: any;
-
-	private _routeData: [[number, number]] | [] = [];
-
-	private _markers: any[] = [];
-
-	constructor({ mapId, lat, lng }: { mapId: string; lat: number; lng: number }) {
+	constructor({ mapId, latLng, zoom }: ConstructorProps) {
 		try {
-			this._map = L.map(mapId).setView([lat, lng], 15);
-			this._map.removeControl(this._map.zoomControl);
-			this._map.attributionControl.setPrefix(
+			this.map = L.map(mapId).setView(latLng, zoom);
+			this.map.removeControl(this.map.zoomControl);
+			this.map.attributionControl.setPrefix(
 				'<a href="https://leafletjs.com" title="A JavaScript library for interactive maps"> Leaflet</a>'
 			);
 			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -52,87 +56,134 @@ export class Map {
 					'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 				detectRetina: true,
 				minZoom: 4,
-			}).addTo(this._map);
+			}).addTo(this.map);
 		} catch (err) {
 			console.log(err);
 		}
 	}
 
-	addMarker({ imei, lat, lng, speed, angle }: MarkerProps) {
-		if (!this._map) return;
-		const index = _.findIndex(this._markers, { imei });
-		if (index === -1) {
-			const markerOptions: RotatedMarkerOptions = {
-				icon: speed > 0 ? redCarMove : redCarStop,
-				rotationAngle: angle,
-			};
-			const marker = new RotatedMarker([lat, lng], markerOptions);
-			marker.addTo(this._map);
-			console.log(`Dodaję marker: ${imei}`);
-			this._markers.push({ imei, marker });
-			console.log(`Mam w tablicy markerów: ${this._markers.length}`);
+	showMarker({ imei, name, speed, angle, latLng, dateTime }: MarkerProps): void {
+		if (!this.map) return;
+		const markerLabel = `<strong>${name}</strong><br />${speed} km/h<br />${moment(dateTime).format(
+			'YYYY-MM-DD HH:mm:ss'
+		)}`;
+		const icon = speed > 0 ? redCarMove : redCarStop;
+		const point = angle > 180 ? L.point(16, 0) : L.point(-16, 0);
+		const direction = angle > 180 ? 'right' : 'left';
+		const index = _.findIndex(this.markers, { imei });
+		const markerExists = index > -1;
+		if (markerExists) {
+			const { marker } = this.markers[index];
+			marker.setIcon(icon);
+			marker.setRotationAngle(angle);
+			marker.unbindTooltip();
+			marker
+				.bindTooltip(markerLabel, {
+					offset: point,
+					direction,
+					opacity: 0.9,
+					permanent: true,
+					className: 'marker-label-red',
+				})
+				.openTooltip();
+			marker.on('click', () => {
+				/* tip on top */
+				marker.closeTooltip();
+				marker.openTooltip();
+			});
+			return;
 		}
+
+		const markerOptions: RotatedMarkerOptions = {
+			icon,
+			rotationAngle: angle,
+		};
+		const marker = new RotatedMarker(latLng, markerOptions)
+			.on('click', () => {
+				/* tip on top */
+				marker.closeTooltip();
+				marker.openTooltip();
+				if (this.map) {
+					this.map.panTo(marker.getLatLng());
+				}
+			})
+			.unbindTooltip()
+			.bindTooltip(markerLabel, {
+				offset: point,
+				direction,
+				opacity: 0.9,
+				permanent: true,
+				className: 'marker-label-red',
+			})
+			.openTooltip();
+		marker.addTo(this.map);
+		console.log(`Dodaję marker: ${imei}`);
+		this.markers.push({ imei, marker });
+		console.log(`Mam w tablicy markerów: ${this.markers.length}`);
 	}
 
-	removeMarker(imei: string) {
-		if (!this._map) return;
-		const index = _.findIndex(this._markers, { imei });
+	hideMarker(imei: string) {
+		if (!this.map) return;
+		const index = _.findIndex(this.markers, { imei });
 		if (index > -1) {
 			console.log(`Usuwam marker: ${imei}`);
-			const { marker } = this._markers[index];
-			this._map.removeLayer(marker);
-			this._markers.splice(index, 1);
-			console.log(`Mam w tablicy markerów: ${this._markers.length}`);
+			const { marker } = this.markers[index];
+			this.map.removeLayer(marker);
+			this.markers.splice(index, 1);
+			console.log(`Mam w tablicy markerów: ${this.markers.length}`);
 		}
 	}
 
-	addRoute(data: [[number, number]]) {
-		if (!this._map) return;
-		this._routeData = data;
+	addRoute(data: [L.LatLng]) {
+		if (!this.map) return;
+		this.routeData = data;
 	}
 
 	drawRoute(color: string = 'blue') {
-		if (!this._map) return;
-		if (this._routePolyline) {
-			this._map?.removeLayer(this._routePolyline);
+		if (!this.map) return;
+		if (this.routePolyline) {
+			this.map?.removeLayer(this.routePolyline);
 		}
-		console.log(this._sliderValue + 1);
-		const currentRouteData = this._routeData.slice(0, this._sliderValue + 1);
+		const currentRouteData = this.routeData.slice(0, this.sliderValue + 1);
 		if (!currentRouteData.length) return;
-		this._routePolyline = L.polyline(currentRouteData, {
+		this.routePolyline = L.polyline(currentRouteData, {
 			color,
 			opacity: 0.9,
 			weight: 5,
-		}).addTo(this._map);
-		const lastPoint: [number, number] = currentRouteData.slice(-1)[0];
-		console.log(this.sliderValue);
-		console.log(this._routeData[this._sliderValue]);
-		this._map.panTo(new L.LatLng(lastPoint[0], lastPoint[1]));
+		}).addTo(this.map);
+		// const lastPoint: [number, number] = currentRouteData.slice(-1)[0];
+		// this.map.panTo(new L.LatLng(lastPoint[0], lastPoint[1]));
 	}
 
 	setZoom(zoom: number) {
-		if (!this._map) return;
-		this._map.setZoom(zoom);
+		if (!this.map) return;
+		this.map.setZoom(zoom);
+	}
+
+	setCenter(latLng: L.LatLng): void {
+		if (this.map) {
+			this.map.panTo(latLng, { animate: true });
+		}
 	}
 
 	getZoom(): number {
-		if (!this._map) return 1;
-		return this._map.getZoom();
+		if (!this.map) return 1;
+		return this.map.getZoom();
 	}
 
-	getLatLng(): L.LatLng {
-		if (!this._map) return new LatLng(0, 0);
-		return this._map.getCenter();
+	getCenter(): L.LatLng {
+		if (!this.map) return new LatLng(0, 0);
+		return this.map.getCenter();
 	}
 
 	close() {
-		if (!this._map) return;
-		this._map.off();
-		this._map.remove();
+		if (!this.map) return;
+		this.map.off();
+		this.map.remove();
 	}
 
 	set sliderValue(value: number) {
-		this._sliderValue = value;
+		this.slider = value;
 		this.drawRoute();
 	}
 }

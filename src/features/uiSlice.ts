@@ -1,19 +1,18 @@
 /* eslint no-param-reassign: 0 */
 import { createSlice } from '@reduxjs/toolkit';
-import { LatLng } from 'leaflet';
 
 export interface UIState {
 	isMenuOpen: boolean;
 	isSideMenuOpen: boolean;
 	mapZoom: number;
-	mapCenter: LatLng;
+	mapCenter: [number, number];
 }
 
 const initialState: UIState = {
 	isMenuOpen: false,
 	isSideMenuOpen: false,
-	mapZoom: 15,
-	mapCenter: new LatLng(50, 18),
+	mapZoom: 4,
+	mapCenter: [52.06889, 19.47944],
 };
 
 export const uiSlice = createSlice({

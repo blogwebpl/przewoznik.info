@@ -2,9 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router-dom';
 import useAxios from '../../hooks/useAxios';
 import { Checkbox } from '../UI/Checkbox';
 import { setVehicleShow } from '../../features/userSlice';
+import { setMapCenter } from '../../features/uiSlice';
 
 const StyledVehicle = styled.div`
 	padding: 4px 14px;
@@ -35,7 +37,8 @@ const StyledDate = styled.span`
 export function Vehicle({ data }: { data: any }) {
 	const dispatch = useDispatch();
 	const axiosPost = useAxios('post');
-
+	const location = useLocation();
+	const navigate = useNavigate();
 	return (
 		<StyledVehicle>
 			<StyledCheckBoxContainer>
@@ -51,7 +54,16 @@ export function Vehicle({ data }: { data: any }) {
 					}}
 				/>
 			</StyledCheckBoxContainer>
-			<StyledNameContainer>
+			<StyledNameContainer
+				onClick={() => {
+					if (data.show) {
+						if (location.pathname !== '/map') {
+							navigate('/map');
+						}
+						dispatch(setMapCenter([data.gps.pos[0], data.gps.pos[1]]));
+					}
+				}}
+			>
 				<StyledName>{data.name}</StyledName>
 				<br />
 				<StyledDate>{moment(data.time).format('YYYY-MM-DD HH:mm:ss')}</StyledDate>

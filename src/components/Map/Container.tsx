@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
+// import _ from 'lodash';
+import L from 'leaflet';
 import { Map } from './Map';
 import { RootState } from '../../app/store';
 import { setMapZoom, setMapCenter } from '../../features/uiSlice';
@@ -42,36 +44,37 @@ export function MapContainer() {
 	const { vehicles } = useSelector((state: RootState) => state.user);
 	useEffect(() => {
 		if (!map) {
-			const m = new Map({ mapId: 'map', lat: mapCenter.lat, lng: mapCenter.lng });
-			m.setZoom(mapZoom);
-			setMap(m);
+			setMap(new Map({ mapId: 'map', latLng: mapCenter, zoom: mapZoom }));
 		}
 
 		return () => {
 			if (map) {
 				const zoom = map.getZoom();
-				const latLng: L.LatLng = map.getLatLng();
+				const latLng: L.LatLng = map.getCenter();
 				dispatch(setMapZoom(zoom));
-				dispatch(setMapCenter(latLng));
+				dispatch(setMapCenter([latLng.lat, latLng.lng]));
 
 				map.close();
 				setMap(undefined);
 			}
 		};
 	}, [map]);
+	useEffect(() => {
+		if (!map) return;
+		map.setCenter(new L.LatLng(mapCenter[0], mapCenter[1]));
+	}, [mapCenter]);
 
 	useEffect(() => {
 		if (!map) return;
 		vehicles.forEach((vehicle) => {
-			const { imei, show } = vehicle;
-			const lat = vehicle.gps.pos[0];
-			const lng = vehicle.gps.pos[1];
+			const { imei, show, name, time: dateTime } = vehicle;
+			const latLng = vehicle.gps.pos;
 			const { spd: speed, ang: angle } = vehicle.gps;
 
 			if (show) {
-				map.addMarker({ imei, lat, lng, speed, angle });
+				map.showMarker({ imei, name, speed, angle, latLng, dateTime });
 			} else {
-				map.removeMarker(imei);
+				map.hideMarker(imei);
 			}
 		});
 	}, [vehicles, map]);
