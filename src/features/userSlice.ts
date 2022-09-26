@@ -1,5 +1,6 @@
 /* eslint no-param-reassign: 0 */
 import { createSlice } from '@reduxjs/toolkit';
+import { io } from 'socket.io-client';
 
 interface UserState {
 	isSignin: boolean;
@@ -23,6 +24,24 @@ export const userSlice = createSlice({
 	reducers: {
 		setIsSignin: (state, action) => {
 			state.isSignin = action.payload;
+
+			if (action.payload === true) {
+				const token = localStorage.getItem('token');
+				// window.location.origin;
+				const socket = io('ws://localhost:3001', {
+					query: { token },
+				});
+				socket.on('error', (error) => {
+					console.log(error);
+				});
+
+				socket.on('point', (data) => {
+					console.log('data');
+					console.log(data);
+				});
+
+				console.log(socket);
+			}
 		},
 		setEmail: (state, action) => {
 			state.email = action.payload;
@@ -52,6 +71,14 @@ export const userSlice = createSlice({
 				return vehicle;
 			});
 		},
+		setVehicleInfo: (state, action) => {
+			state.vehicles = state.vehicles.map((vehicle) => {
+				if (vehicle.imei === action.payload.imei) {
+					vehicle.info = action.payload.info;
+				}
+				return vehicle;
+			});
+		},
 	},
 });
 
@@ -63,6 +90,7 @@ export const {
 	setVehicles,
 	setVehicleLive,
 	setVehicleShow,
+	setVehicleInfo,
 } = userSlice.actions;
 
 export default userSlice.reducer;

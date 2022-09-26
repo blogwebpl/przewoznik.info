@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import { RootState } from '../../app/store';
-import { setIsSignin, setRole } from '../../features/userSlice';
+import { setEmail, setIsSignin, setRole } from '../../features/userSlice';
 import useAxios from '../../hooks/useAxios';
 import { Card } from '../UI/Card';
 import { IconList } from '../UI/IconList';
@@ -27,6 +27,7 @@ export function Profile() {
 		// 	url: '/user/signout',
 		// });
 		dispatch(setIsSignin(false));
+		dispatch(setEmail(''));
 		localStorage.removeItem('token');
 		navigate('/signin');
 	};
