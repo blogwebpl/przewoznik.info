@@ -7,7 +7,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import _ from 'lodash';
 import useAxios from '../../hooks/useAxios';
 import { Checkbox } from '../UI/Checkbox';
-import { setVehicleInfo, setVehicleLive, setVehicleShow } from '../../features/userSlice';
+import { setVehicleInfo, setVehicleFollow, setVehicleShow } from '../../features/userSlice';
 import { setMapCenter } from '../../features/uiSlice';
 import { InfoIcon } from '../UI/Icons/InfoIcon/InfoIcon';
 import { IconButton } from '../UI/IconButton';
@@ -96,7 +96,7 @@ export function Vehicle({ data }: { data: any }) {
 						setChecked={() => {
 							axiosPost({
 								url: '/user/imei',
-								params: { imei: data.imei, live: data.live, show: !data.show, info: data.info },
+								params: { imei: data.imei, follow: data.follow, show: !data.show, info: data.info },
 							});
 							dispatch(setVehicleShow({ imei: data.imei, show: !data.show }));
 						}}
@@ -119,13 +119,13 @@ export function Vehicle({ data }: { data: any }) {
 				<StyledIconContainer>
 					<IconButton
 						darkBg
-						color={data.live ? '#ff4081' : '#777'}
+						color={data.follow ? '#ff4081' : '#777'}
 						onClick={() => {
 							axiosPost({
 								url: '/user/imei',
-								params: { imei: data.imei, live: !data.live, show: data.show, info: data.info },
+								params: { imei: data.imei, follow: !data.follow, show: data.show, info: data.info },
 							});
-							dispatch(setVehicleLive({ imei: data.imei, live: !data.live }));
+							dispatch(setVehicleFollow({ imei: data.imei, follow: !data.follow }));
 						}}
 					>
 						<IcCenterIcon />
@@ -138,7 +138,7 @@ export function Vehicle({ data }: { data: any }) {
 						onClick={() => {
 							axiosPost({
 								url: '/user/imei',
-								params: { imei: data.imei, live: data.live, show: data.show, info: !data.info },
+								params: { imei: data.imei, follow: data.follow, show: data.show, info: !data.info },
 							});
 							dispatch(setVehicleInfo({ imei: data.imei, info: !data.info }));
 						}}

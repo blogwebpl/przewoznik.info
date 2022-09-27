@@ -1,6 +1,8 @@
 /* eslint no-param-reassign: 0 */
 import { createSlice } from '@reduxjs/toolkit';
-import { io } from 'socket.io-client';
+import _ from 'lodash';
+// eslint-disable-next-line import/no-cycle
+import { createSocket, disconnectSocket } from '../socket';
 
 interface UserState {
 	isSignin: boolean;
@@ -26,21 +28,9 @@ export const userSlice = createSlice({
 			state.isSignin = action.payload;
 
 			if (action.payload === true) {
-				const token = localStorage.getItem('token');
-				// window.location.origin;
-				const socket = io('ws://localhost:3001', {
-					query: { token },
-				});
-				socket.on('error', (error) => {
-					console.log(error);
-				});
-
-				socket.on('point', (data) => {
-					console.log('data');
-					console.log(data);
-				});
-
-				console.log(socket);
+				createSocket();
+			} else {
+				disconnectSocket();
 			}
 		},
 		setEmail: (state, action) => {
@@ -55,10 +45,24 @@ export const userSlice = createSlice({
 		setVehicles: (state, action) => {
 			state.vehicles = action.payload;
 		},
-		setVehicleLive: (state, action) => {
+		updateVehicle: (state, action) => {
+			const { vehicles } = state;
+			const vehicleIndex = _.findIndex(vehicles, { imei: action.payload.imei });
+			const vehicleExists = vehicleIndex > -1;
+			const vehicleTime = action.payload.time;
+			const currentTime = state.vehicles[vehicleIndex].time;
+			if (vehicleExists && vehicleTime >= currentTime) {
+				vehicles[vehicleIndex] = {
+					...state.vehicles[vehicleIndex],
+					...action.payload,
+				};
+				state.vehicles = vehicles;
+			}
+		},
+		setVehicleFollow: (state, action) => {
 			state.vehicles = state.vehicles.map((vehicle) => {
 				if (vehicle.imei === action.payload.imei) {
-					vehicle.live = action.payload.live;
+					vehicle.follow = action.payload.follow;
 				}
 				return vehicle;
 			});
@@ -88,7 +92,8 @@ export const {
 	setRole,
 	setRoles,
 	setVehicles,
-	setVehicleLive,
+	updateVehicle,
+	setVehicleFollow,
 	setVehicleShow,
 	setVehicleInfo,
 } = userSlice.actions;

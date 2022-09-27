@@ -67,12 +67,12 @@ export function MapContainer() {
 	useEffect(() => {
 		if (!map) return;
 		vehicles.forEach((vehicle) => {
-			const { imei, show, name, time: dateTime } = vehicle;
+			const { imei, show, follow, name, time: dateTime } = vehicle;
 			const latLng = vehicle.gps.pos;
 			const { spd: speed, ang: angle } = vehicle.gps;
 
 			if (show) {
-				map.showMarker({ imei, name, speed, angle, latLng, dateTime });
+				map.showMarker({ imei, name, speed, angle, latLng, dateTime, follow });
 			} else {
 				map.hideMarker(imei);
 			}

@@ -12,6 +12,7 @@ interface MarkerProps {
 	angle: number;
 	latLng: [number, number];
 	dateTime: Date;
+	follow: boolean;
 }
 
 interface RotatedMarkerOptions extends L.MarkerOptions {
@@ -62,7 +63,7 @@ export class Map {
 		}
 	}
 
-	showMarker({ imei, name, speed, angle, latLng, dateTime }: MarkerProps): void {
+	showMarker({ imei, name, speed, angle, latLng, dateTime, follow }: MarkerProps): void {
 		if (!this.map) return;
 		const markerLabel = `<strong>${name}</strong><br />${speed} km/h<br />${moment(dateTime).format(
 			'YYYY-MM-DD HH:mm:ss'
@@ -76,6 +77,7 @@ export class Map {
 			const { marker } = this.markers[index];
 			marker.setIcon(icon);
 			marker.setRotationAngle(angle);
+			marker.setLatLng(latLng);
 			marker.unbindTooltip();
 			marker
 				.bindTooltip(markerLabel, {
@@ -91,6 +93,9 @@ export class Map {
 				marker.closeTooltip();
 				marker.openTooltip();
 			});
+			if (follow) {
+				this.map.panTo(latLng);
+			}
 			return;
 		}
 
