@@ -47,7 +47,7 @@ export const userSlice = createSlice({
 		},
 		updateVehicle: (state, action) => {
 			const { vehicles } = state;
-			const vehicleIndex = _.findIndex(vehicles, { imei: action.payload.imei });
+			const vehicleIndex = _.findIndex(vehicles, { vid: action.payload.vid });
 			const vehicleExists = vehicleIndex > -1;
 			const vehicleTime = action.payload.time;
 			const currentTime = state.vehicles[vehicleIndex].time;
@@ -61,7 +61,7 @@ export const userSlice = createSlice({
 		},
 		setVehicleFollow: (state, action) => {
 			state.vehicles = state.vehicles.map((vehicle) => {
-				if (vehicle.imei === action.payload.imei) {
+				if (vehicle.vid === action.payload.vid) {
 					vehicle.follow = action.payload.follow;
 				}
 				return vehicle;
@@ -69,7 +69,7 @@ export const userSlice = createSlice({
 		},
 		setVehicleShow: (state, action) => {
 			state.vehicles = state.vehicles.map((vehicle) => {
-				if (vehicle.imei === action.payload.imei) {
+				if (vehicle.vid === action.payload.vid) {
 					vehicle.show = action.payload.show;
 				}
 				return vehicle;
@@ -77,7 +77,7 @@ export const userSlice = createSlice({
 		},
 		setVehicleInfo: (state, action) => {
 			state.vehicles = state.vehicles.map((vehicle) => {
-				if (vehicle.imei === action.payload.imei) {
+				if (vehicle.vid === action.payload.vid) {
 					vehicle.info = action.payload.info;
 				}
 				return vehicle;

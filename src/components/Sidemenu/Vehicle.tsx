@@ -1,7 +1,6 @@
 /* eslint-disable prefer-destructuring */
 import React from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import _ from 'lodash';
@@ -95,10 +94,10 @@ export function Vehicle({ data }: { data: any }) {
 						checked={data.show}
 						setChecked={() => {
 							axiosPost({
-								url: '/user/imei',
-								params: { imei: data.imei, follow: data.follow, show: !data.show, info: data.info },
+								url: '/user/vid',
+								params: { vid: data.vid, follow: data.follow, show: !data.show, info: data.info },
 							});
-							dispatch(setVehicleShow({ imei: data.imei, show: !data.show }));
+							dispatch(setVehicleShow({ vid: data.vid, show: !data.show }));
 						}}
 					/>
 				</StyledCheckBoxContainer>
@@ -108,13 +107,13 @@ export function Vehicle({ data }: { data: any }) {
 							if (location.pathname !== '/map') {
 								navigate('/map');
 							}
-							dispatch(setMapCenter([data.gps.pos[0], data.gps.pos[1]]));
+							if (data.gps) dispatch(setMapCenter([data.gps.pos[0], data.gps.pos[1]]));
 						}
 					}}
 				>
 					<StyledName>{data.name}</StyledName>
 					<br />
-					<StyledDate>{moment(data.time).format('YYYY-MM-DD HH:mm:ss')}</StyledDate>
+					<StyledDate>{new Date(data.time).toLocaleString('pl', { day: '2-digit' })}</StyledDate>
 				</StyledNameContainer>
 				<StyledIconContainer>
 					<IconButton
@@ -122,10 +121,10 @@ export function Vehicle({ data }: { data: any }) {
 						color={data.follow ? '#ff4081' : '#777'}
 						onClick={() => {
 							axiosPost({
-								url: '/user/imei',
-								params: { imei: data.imei, follow: !data.follow, show: data.show, info: data.info },
+								url: '/user/vid',
+								params: { vid: data.vid, follow: !data.follow, show: data.show, info: data.info },
 							});
-							dispatch(setVehicleFollow({ imei: data.imei, follow: !data.follow }));
+							dispatch(setVehicleFollow({ vid: data.vid, follow: !data.follow }));
 						}}
 					>
 						<IcCenterIcon />
@@ -137,10 +136,10 @@ export function Vehicle({ data }: { data: any }) {
 						color={data.info ? '#ff4081' : '#777'}
 						onClick={() => {
 							axiosPost({
-								url: '/user/imei',
-								params: { imei: data.imei, follow: data.follow, show: data.show, info: !data.info },
+								url: '/user/vid',
+								params: { vid: data.vid, follow: data.follow, show: data.show, info: !data.info },
 							});
-							dispatch(setVehicleInfo({ imei: data.imei, info: !data.info }));
+							dispatch(setVehicleInfo({ vid: data.vid, info: !data.info }));
 						}}
 					>
 						<InfoIcon />

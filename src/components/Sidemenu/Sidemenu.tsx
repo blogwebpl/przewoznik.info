@@ -9,7 +9,7 @@ export function SideMenu() {
 	const { isSideMenuOpen } = useSelector((state: RootState) => state.ui);
 	return (
 		<StyledSideMenu isSideMenuOpen={isSideMenuOpen}>
-			{vehicles && vehicles.map((vehicle: any) => <Vehicle key={vehicle.imei} data={vehicle} />)}
+			{vehicles && vehicles.map((vehicle: any) => <Vehicle key={vehicle.vid} data={vehicle} />)}
 		</StyledSideMenu>
 	);
 }

@@ -1,12 +1,11 @@
 import L, { LatLng } from 'leaflet';
 import { RotatedMarker } from 'leaflet-marker-rotation';
 import _ from 'lodash';
-import moment from 'moment';
 import redCarMoveIcon from '../../assets/redCarMove.svg';
 import redCarStopIcon from '../../assets/redCarStop.svg';
 
 interface MarkerProps {
-	imei: string;
+	vid: string;
 	name: string;
 	speed: number;
 	angle: number;
@@ -43,7 +42,7 @@ export class Map {
 	private slider: number = 1;
 	private routePolyline: L.Polyline = L.polyline([]);
 	private routeData: L.LatLng[] = [];
-	private markers: { imei: string; marker: RotatedMarker }[] = [];
+	private markers: { vid: string; marker: RotatedMarker }[] = [];
 
 	constructor({ mapId, latLng, zoom }: ConstructorProps) {
 		try {
@@ -63,15 +62,15 @@ export class Map {
 		}
 	}
 
-	showMarker({ imei, name, speed, angle, latLng, dateTime, follow }: MarkerProps): void {
+	showMarker({ vid, name, speed, angle, latLng, dateTime, follow }: MarkerProps): void {
 		if (!this.map) return;
-		const markerLabel = `<strong>${name}</strong><br />${speed} km/h<br />${moment(dateTime).format(
-			'YYYY-MM-DD HH:mm:ss'
-		)}`;
+		const markerLabel = `<strong>${name}</strong><br />${speed} km/h<br />${new Date(
+			dateTime
+		).toLocaleString('pl', { dateStyle: 'short' })}`;
 		const icon = speed > 0 ? redCarMove : redCarStop;
 		const point = angle > 180 ? L.point(16, 0) : L.point(-16, 0);
 		const direction = angle > 180 ? 'right' : 'left';
-		const index = _.findIndex(this.markers, { imei });
+		const index = _.findIndex(this.markers, { vid });
 		const markerExists = index > -1;
 		if (markerExists) {
 			const { marker } = this.markers[index];
@@ -122,16 +121,16 @@ export class Map {
 			})
 			.openTooltip();
 		marker.addTo(this.map);
-		console.log(`Dodaję marker: ${imei}`);
-		this.markers.push({ imei, marker });
+		console.log(`Dodaję marker: ${vid}`);
+		this.markers.push({ vid, marker });
 		console.log(`Mam w tablicy markerów: ${this.markers.length}`);
 	}
 
-	hideMarker(imei: string) {
+	hideMarker(vid: string) {
 		if (!this.map) return;
-		const index = _.findIndex(this.markers, { imei });
+		const index = _.findIndex(this.markers, { vid });
 		if (index > -1) {
-			console.log(`Usuwam marker: ${imei}`);
+			console.log(`Usuwam marker: ${vid}`);
 			const { marker } = this.markers[index];
 			this.map.removeLayer(marker);
 			this.markers.splice(index, 1);
