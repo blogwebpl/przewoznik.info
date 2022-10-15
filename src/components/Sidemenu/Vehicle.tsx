@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import _ from 'lodash';
+import dayjs from 'dayjs';
 import useAxios from '../../hooks/useAxios';
 import { Checkbox } from '../UI/Checkbox';
 import { setVehicleInfo, setVehicleFollow, setVehicleShow } from '../../features/userSlice';
@@ -113,7 +114,7 @@ export function Vehicle({ data }: { data: any }) {
 				>
 					<StyledName>{data.name}</StyledName>
 					<br />
-					<StyledDate>{new Date(data.time).toLocaleString('pl', { day: '2-digit' })}</StyledDate>
+					<StyledDate>{data.time && dayjs(data.time).format('YYYY-MM-DD HH:mm:ss')}</StyledDate>
 				</StyledNameContainer>
 				<StyledIconContainer>
 					<IconButton

@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import L, { LatLng } from 'leaflet';
 import { RotatedMarker } from 'leaflet-marker-rotation';
 import _ from 'lodash';
@@ -64,9 +65,9 @@ export class Map {
 
 	showMarker({ vid, name, speed, angle, latLng, dateTime, follow }: MarkerProps): void {
 		if (!this.map) return;
-		const markerLabel = `<strong>${name}</strong><br />${speed} km/h<br />${new Date(
-			dateTime
-		).toLocaleString('pl', { dateStyle: 'short' })}`;
+		const markerLabel = `<strong>${name}</strong><br />${speed} km/h<br />${dayjs(dateTime).format(
+			'YYYY-MM-DD HH:mm:ss'
+		)}`;
 		const icon = speed > 0 ? redCarMove : redCarStop;
 		const point = angle > 180 ? L.point(16, 0) : L.point(-16, 0);
 		const direction = angle > 180 ? 'right' : 'left';
