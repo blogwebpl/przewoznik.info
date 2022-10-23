@@ -3,11 +3,12 @@ import React, { useEffect, useState } from 'react';
 
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-// import _ from 'lodash';
 import L from 'leaflet';
-import { Map } from './Map';
+import { AxiosResponse } from 'axios';
+import { Map, RoutePoint } from './Map';
 import { RootState } from '../../app/store';
 import { setMapZoom, setMapCenter } from '../../features/uiSlice';
+import useAxios from '../../hooks/useAxios';
 
 const StyledMap = styled.div`
 	width: 100%;
@@ -37,11 +38,21 @@ export function MapContainer() {
 	const dispatch = useDispatch();
 	const [map, setMap] = useState<Map | undefined>();
 	const [sliderValue, setSliderValue] = useState<number>(1);
-	// const [sliderMax, setSliderMax] = useState<number>(0);
+	const [sliderMax, setSliderMax] = useState<number>(0);
 	const [fromDateTime, setFromDateTime] = useState<string>('');
 	const [toDateTime, setToDateTime] = useState<string>('');
 	const { mapZoom, mapCenter } = useSelector((state: RootState) => state.ui);
 	const { vehicles } = useSelector((state: RootState) => state.user);
+	const [routeVehicle, setRouteVehicle] = useState<string>(vehicles[0]?.vid || '');
+
+	const axiosGet = useAxios('get');
+
+	console.log(routeVehicle);
+
+	useEffect(() => {
+		setRouteVehicle(vehicles[0]?.vid);
+	}, [vehicles]);
+
 	useEffect(() => {
 		if (!map) {
 			setMap(new Map({ mapId: 'map', latLng: mapCenter, zoom: mapZoom }));
@@ -78,22 +89,23 @@ export function MapContainer() {
 		});
 	}, [vehicles, map]);
 
-	// const test = async () => {
-	// 	if (!map) return;
-	// 	const fromDate = new Date(fromDateTime).toISOString();
-	// 	const toDate = new Date(toDateTime).toISOString();
+	const loadRoute = async () => {
+		if (!map) return;
 
-	// 	const route = await axios.get(
-	// 		`http://localhost:3001/api/route?imei=352094082752483&fromDateTime=${fromDate}&toDateTime=${toDate}`
-	// 	);
+		const fromDate = new Date(fromDateTime).toISOString();
+		const toDate = new Date(toDateTime).toISOString();
 
-	// 	const data = route.data.route.map((point: any) => [point.gps.pos[1], point.gps.pos[0]]);
-	// 	console.log(data);
-	// 	map.setZoom(18);
-	// 	map.addMarker({ lat: 53.14544, lon: 18.13467, speed: 20, angle: 0 });
-	// 	map.addRoute(data);
-	// 	setSliderMax(data.length);
-	// };
+		const route: AxiosResponse<{ route: RoutePoint[] }> = await axiosGet({
+			url: `route?vid=${routeVehicle}&fromDateTime=${fromDate}&toDateTime=${toDate}`,
+		});
+
+		if (!route?.data?.route?.length) {
+			return;
+		}
+		map.setZoom(18);
+		map.setRoute(route.data.route);
+		setSliderMax(route.data.route.length);
+	};
 
 	return (
 		<>
@@ -102,13 +114,14 @@ export function MapContainer() {
 				<StyledSlider
 					type="range"
 					min={0}
-					max={0} // sliderMax
+					max={sliderMax}
 					value={sliderValue}
 					onChange={(e) => {
 						if (map) map.sliderValue = Number(e.target.value);
 						setSliderValue(Number(e.target.value));
 					}}
 				/>
+				{sliderValue} / {sliderMax}
 				<button
 					type="button"
 					onClick={() => {
@@ -143,6 +156,20 @@ export function MapContainer() {
 						setToDateTime(e.target.value);
 					}}
 				/>
+				<select
+					onChange={(e) => {
+						setRouteVehicle(e.target.value);
+					}}
+				>
+					{vehicles.map((vehicle) => (
+						<option key={vehicle.vid} value={vehicle.vid}>
+							{vehicle.name}
+						</option>
+					))}
+				</select>
+				<button type="button" onClick={loadRoute}>
+					load
+				</button>
 			</StyledControl>
 		</>
 	);
