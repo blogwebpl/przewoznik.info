@@ -64,7 +64,7 @@ export function AppBar({ title }: AppBarProps) {
 			<StyledTitleContainer>
 				<Typography component="h6" userSelect="none">
 					<span>
-						{title} [{env}]
+						{title} {env === 'development' ? 'dev' : ''}
 					</span>
 				</Typography>
 			</StyledTitleContainer>
