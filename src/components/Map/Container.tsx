@@ -44,12 +44,10 @@ export function MapContainer() {
 	const { mapZoom, mapCenter } = useSelector((state: RootState) => state.ui);
 	const { vehicles } = useSelector((state: RootState) => state.user);
 	const [routeVehicle, setRouteVehicle] = useState<string>(
-		vehicles.length > 0 ? vehicles[0].vid : ''
+		vehicles && vehicles.length > 0 ? vehicles[0].vid : ''
 	);
 
 	const axiosGet = useAxios('get');
-
-	console.log(routeVehicle);
 
 	useEffect(() => {
 		setRouteVehicle(vehicles[0]?.vid);
