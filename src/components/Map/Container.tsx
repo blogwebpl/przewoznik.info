@@ -50,7 +50,9 @@ export function MapContainer() {
 	const axiosGet = useAxios('get');
 
 	useEffect(() => {
-		setRouteVehicle(vehicles[0]?.vid);
+		if (vehicles) {
+			setRouteVehicle(vehicles[0]?.vid);
+		}
 	}, [vehicles]);
 
 	useEffect(() => {
