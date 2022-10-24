@@ -271,7 +271,7 @@ export class Map {
 		const currentRouteData = this.routeData.slice(0, this.slider + 1);
 
 		const gpsData: LatLng[] = currentRouteData.map(
-			(point) => new LatLng(point.gps.pos[1], point.gps.pos[0])
+			(point) => new LatLng(point.gps.pos[0], point.gps.pos[1])
 		);
 
 		if (!currentRouteData.length) return;
@@ -283,8 +283,8 @@ export class Map {
 
 		const point = this.slider;
 		const latLng: [number, number] = [
-			this.routeData[point].gps.pos[1],
 			this.routeData[point].gps.pos[0],
+			this.routeData[point].gps.pos[1],
 		];
 		const dateTime = this.routeData[point].time;
 		const speed = this.routeData[point].gps.spd;
