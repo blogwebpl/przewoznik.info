@@ -161,11 +161,12 @@ export function MapContainer() {
 						setRouteVehicle(e.target.value);
 					}}
 				>
-					{vehicles.map((vehicle) => (
-						<option key={vehicle.vid} value={vehicle.vid}>
-							{vehicle.name}
-						</option>
-					))}
+					{vehicles &&
+						vehicles.map((vehicle) => (
+							<option key={vehicle.vid} value={vehicle.vid}>
+								{vehicle.name}
+							</option>
+						))}
 				</select>
 				<button type="button" onClick={loadRoute}>
 					load
