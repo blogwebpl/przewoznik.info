@@ -79,6 +79,7 @@ export function MapContainer() {
 
 	useEffect(() => {
 		if (!map) return;
+		if (!vehicles) return;
 		vehicles.forEach((vehicle) => {
 			const { vid, show, follow, name, time: dateTime } = vehicle;
 			if (show && vehicle.gps) {
