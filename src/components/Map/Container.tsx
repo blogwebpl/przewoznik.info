@@ -43,7 +43,9 @@ export function MapContainer() {
 	const [toDateTime, setToDateTime] = useState<string>('');
 	const { mapZoom, mapCenter } = useSelector((state: RootState) => state.ui);
 	const { vehicles } = useSelector((state: RootState) => state.user);
-	const [routeVehicle, setRouteVehicle] = useState<string>(vehicles[0]?.vid || '');
+	const [routeVehicle, setRouteVehicle] = useState<string>(
+		vehicles.length > 0 ? vehicles[0].vid : ''
+	);
 
 	const axiosGet = useAxios('get');
 
