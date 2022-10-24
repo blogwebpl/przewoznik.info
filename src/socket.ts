@@ -5,8 +5,8 @@ import { updateVehicle } from './features/userSlice';
 let socket: any = null;
 export const createSocket = () => {
 	const token = localStorage.getItem('token');
-	// window.location.origin;
-	socket = io('ws://localhost:3001', {
+	const env = process.env.NODE_ENV;
+	socket = io(env === 'development' ? 'ws://localhost:3001' : `wss://${window.location.host}`, {
 		query: { token },
 	});
 	socket.on('error', (error: any) => {

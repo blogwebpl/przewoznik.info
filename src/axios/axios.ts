@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const URL = 'http://localhost:3001/api';
+const env = process.env.NODE_ENV;
+
+const URL = env === 'development' ? 'http://localhost:3001/api' : `${window.location.href}api`;
 
 const instance = axios.create({
 	baseURL: URL,
