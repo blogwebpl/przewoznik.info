@@ -24,6 +24,7 @@ const StyledItem = styled.li`
 	&:hover {
 		background-color: #eee;
 	}
+	user-select: none;
 `;
 
 function GetIcon({ icon }: { icon: string }) {
