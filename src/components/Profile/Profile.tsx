@@ -33,7 +33,7 @@ export function Profile() {
 	};
 
 	return (
-		<Card padding minWidth={420}>
+		<Card padding minWidth={320}>
 			<Title caption={`Profil ${email}`} />
 			<LabeledSelect
 				margin
