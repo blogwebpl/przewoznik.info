@@ -48,7 +48,7 @@ export function App() {
 		<>
 			<Main isCovered>
 				<Routes>
-					<Route path="signin" element={<Signin />} />
+					<Route path="signin" element={isSignin ? <Blank /> : <Signin />} />
 					<Route element={<ProtectedRoutes />}>
 						<Route path="" element={<Blank />} />
 						<Route path="profile" element={<Profile />} />
