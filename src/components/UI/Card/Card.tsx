@@ -4,7 +4,6 @@ import styled, { keyframes } from 'styled-components';
 interface StyledCardProps {
 	padding: boolean;
 	minWidth: number;
-	maxWidth: number;
 }
 
 const fadeIn = keyframes`
@@ -24,19 +23,21 @@ const StyledCard = styled.div<StyledCardProps>`
 	color: ${(props) => props.theme.palette.primary.paperText};
 	display: inline-block;
 	padding: ${(props) => (props.padding ? '16px' : '0')};
-	min-width: ${(props) => props.minWidth}px;
-	max-width: ${(props) => props.maxWidth}px;
+	width: min(calc(100% - 2rem), ${(props) => props.minWidth}px);
+	margin-inline: auto;
+	box-sizing: border-box;
 `;
+// min-width: ${(props) => props.minWidth}px;
+// max-width: ${(props) => props.maxWidth}px;
 
 interface CardProps {
 	children: JSX.Element | JSX.Element[];
-	minWidth?: number;
-	maxWidth?: number;
+	minWidth: number;
 	padding?: boolean;
 }
-export function Card({ children, padding = false, minWidth = 320, maxWidth = 1920 }: CardProps) {
+export function Card({ children, padding = false, minWidth = 320 }: CardProps) {
 	return (
-		<StyledCard padding={padding} minWidth={minWidth} maxWidth={maxWidth}>
+		<StyledCard padding={padding} minWidth={minWidth}>
 			{children}
 		</StyledCard>
 	);

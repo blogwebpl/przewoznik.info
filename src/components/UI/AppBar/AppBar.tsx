@@ -33,6 +33,7 @@ const StyledAppBar = styled.header`
 
 const StyledTitleContainer = styled.div`
 	flex-grow: 1;
+	overflow: hidden;
 `;
 
 const StyledIconContainer = styled.div`
@@ -64,7 +65,7 @@ export function AppBar({ title }: AppBarProps) {
 			<StyledTitleContainer>
 				<Typography component="h6" userSelect="none">
 					<span>
-						{title} {env === 'development' ? 'dev' : ''}
+						{title}&nbsp;{env === 'development' ? 'dev' : ''}
 					</span>
 				</Typography>
 			</StyledTitleContainer>

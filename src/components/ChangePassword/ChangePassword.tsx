@@ -55,7 +55,7 @@ export function ChangePassword() {
 		}
 	};
 	return (
-		<Card padding>
+		<Card padding minWidth={320}>
 			<StyledContainer>
 				<Title caption="Zmiana hasła" />{' '}
 				<>

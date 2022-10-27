@@ -154,7 +154,7 @@ export function Signin() {
 	}, []);
 
 	return (
-		<Card padding maxWidth={320}>
+		<Card padding minWidth={320}>
 			<StyledLogo src={logo} alt="" />
 			<Typography component="h6" userSelect="none">
 				Zaloguj się

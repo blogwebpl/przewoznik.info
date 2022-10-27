@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const StyledContainer = styled.div`
-	width: 320px;
+	width: 100%;
 `;
 
 export const StyledFieldContainer = styled.div`
